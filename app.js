@@ -5,30 +5,21 @@ const requestService = require('./requestService')
 const app = express()
 const PORT = process.env.PORT || 3000
 
-app.get('/healthy-endpoint', (req, res) => {
-    const shouldWork = Math.random() > 0.3
+let isEndpointWorking = true
 
-    if (shouldWork) {
-        res.status(200).send({ status: 'SUCCESS' })
-    } else {
-        res.status(500).send({ status: 'ERROR' })
+const mockEndpointState = () => {
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max))
     }
-})
 
-app.get('/unhealthy-endpoint', (req, res) => {
-    const shouldWork = Math.random() > 0.7
+    setInterval(() => {
+        isEndpointWorking = !isEndpointWorking
+        console.log('\nEndpoint state changed to ', isEndpointWorking ? 'Working' : 'Non Working')
+    }, 1000 * getRandomInt(5))
+}
 
-    if (shouldWork) {
-        res.status(200).send({ status: 'SUCCESS' })
-    } else {
-        res.status(500).send({ status: 'ERROR' })
-    }
-})
-
-app.get('/critical-endpoint', (req, res) => {
-    const shouldWork = Math.random() > 0.9
-
-    if (shouldWork) {
+app.get('/', (req, res) => {
+    if (isEndpointWorking) {
         res.status(200).send({ status: 'SUCCESS' })
     } else {
         res.status(500).send({ status: 'ERROR' })
@@ -37,6 +28,7 @@ app.get('/critical-endpoint', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`App started at port ${PORT}`)
+    mockEndpointState()
 
     requestService.doRequest({
         count: 5,

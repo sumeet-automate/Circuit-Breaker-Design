@@ -5,7 +5,7 @@ const requestState = []
 function doRequest(options = {}) {
     const defaultRequestOptions = {
         count: 1,
-        uri: 'http://localhost:3000/unhealthy-endpoint',
+        uri: 'http://localhost:3000/',
         after: 0, // seconds after which the request should fire
         interval: 0 // interval in seconds in which the request should fire one after another
     }
