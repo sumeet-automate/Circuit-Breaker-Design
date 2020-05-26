@@ -1,6 +1,7 @@
 const express = require('express')
+const Agendash = require('agendash')
 
-const requestService = require('./requestService')
+const agenda = require('./lib/agenda')
 
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -15,7 +16,7 @@ const mockEndpointState = () => {
     setInterval(() => {
         isEndpointWorking = !isEndpointWorking
         console.log('\nEndpoint state changed to ', isEndpointWorking ? 'Working' : 'Non Working')
-    }, 1000 * getRandomInt(5))
+    }, 1000 * getRandomInt(10))
 }
 
 app.get('/', (req, res) => {
@@ -26,13 +27,18 @@ app.get('/', (req, res) => {
     }
 })
 
+app.use('/admin', Agendash(agenda))
+
 app.listen(PORT, () => {
     console.log(`App started at port ${PORT}`)
     mockEndpointState()
-
-    requestService.doRequest({
-        count: 5,
-        interval: 1,
-        after: 1
-    })
 })
+
+function graceful() {
+    agenda.stop(function () {
+        process.exit(0)
+    })
+}
+
+process.on('SIGTERM', graceful)
+process.on('SIGINT', graceful)
